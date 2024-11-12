@@ -1,5 +1,5 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.2.0. for both game versions  date 11. 11. 2024
+//version 1.2.1 for both game versions  date 12. 11. 2024
 
 state("TINTIN", "v1.00"){
     bool cutscene: "binkw32.dll", 0x2A91C; // true if the game is playing a video cutscene (bink)
@@ -9,10 +9,10 @@ state("TINTIN", "v1.00"){
 }
 
 state("TINTIN", "v1.02"){
-    bool cutscene: "TINTIN.exe", 0x01181C34, 0xFE0; // 
-    float posX: "TINTIN.exe", 0x005FE9E4, 0x0, 0x4C; // posX value currently not the same as in 1.00, need to change it Value in title screen is 22.25559425, then 9.548863411 on Tintin
-    float posY: "TINTIN.exe", 0x0164BE88, 0x7DC, 0xCE0; // 
-    float posZ: "TINTIN.exe", 0x0164BE88, 0x7B0, 0x3C; // 
+    bool cutscene: "binkw32.dll", 0x2A91C; // same as 1.00
+    float posX: "TINTIN.exe", 0x5EE5F8; // same as 1.00
+    float posY: "TINTIN.exe", 0x0164BE88, 0x7DC, 0xCE0; // since it's a pointer, Y had to be changed
+    float posZ: "TINTIN.exe", 0x5EE660; // same as 1.00
 }
 
 startup{
