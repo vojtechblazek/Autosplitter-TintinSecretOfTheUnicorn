@@ -1,5 +1,5 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.2.1 for both game versions  date 12. 11. 2024
+//version 1.2.2 for both game versions  date 12. 11. 2024
 
 state("TINTIN", "v1.00"){
     bool cutscene: "binkw32.dll", 0x2A91C; // true if the game is playing a video cutscene (bink)
@@ -51,6 +51,8 @@ init{
     vars.bookKaraboudjan = false;
     vars.bookBagghar = false;
     vars.bookBrittany = false;
+    vars.finalSplit = false;
+    vars.gameFinished = false;
 }
 
 update{
@@ -95,6 +97,15 @@ update{
     {
         vars.bookBrittany = true;
     }
+    //Final Split
+    if (current.posX > 308 && current.posX < 312 &&
+        current.posY > -16 && current.posY < -14 &&
+        current.posZ > -11 && current.posZ < -7 &&
+        vars.finalSplit == false &&
+        vars.gameFinished == false)
+    { 
+        vars.finalSplit = true;
+    }
 }
 
 start{
@@ -103,13 +114,11 @@ start{
 
 split{
     // Ending split
-    if (current.posX > 308 && current.posX < 312 &&
-        current.posY > -16 && current.posY < -14 &&
-        current.posZ > -11 && current.posZ < -7 &&
-        current.cutscene == true)
-    { 
-            vars.gameFinished = 1;
-            return true;
+    if (vars.finalSplit == true && current.cutscene == true)
+    {
+        vars.finalSplit = false;
+        vars.gameFinished = true;
+        return true;
     }
     
     //BOOK SPLITS
