@@ -162,3 +162,13 @@ split{
         }
     }
 }
+
+onReset{
+    vars.bookFleaMarket = false;
+    vars.bookMoulinsart = false;
+    vars.bookKaraboudjan = false;
+    vars.bookBagghar = false;
+    vars.bookBrittany = false;
+    vars.finalSplit = false;
+    vars.gameFinished = false;
+}
