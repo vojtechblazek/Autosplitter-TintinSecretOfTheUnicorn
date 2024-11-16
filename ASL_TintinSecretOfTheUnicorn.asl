@@ -16,11 +16,10 @@ startup{
             settings.Add("BOOK4", true, "After 4th Batch of chapters (Bagghar)", "S");
             settings.Add("BOOK5", true, "After 5th Batch of chapters (Brittany)", "S");
     
-    settings.Add("ES", true, "In-Chapter Splits");
-            settings.Add("MS1", true, "Moulinsart: Exiting crypts, entering the building", "ES");
-            
-            settings.Add("KB1", true, "Karaboudjan: After meeting Haddock", "ES");
-            settings.Add("KB2", true, "Karaboudjan: After Haddock destroys the ship", "ES");
+    settings.Add("ES", true, "Additional Splits");
+            settings.Add("MS1", false, "Moulinsart: The Salons", "ES");
+            settings.Add("KB1", false, "Karaboudjan: Up to the Wheelhouse (after cutscene)", "ES");
+            settings.Add("KB2", false, "Karaboudjan: The Shipwreck (after cutscene)", "ES");
 }
 
 init{
