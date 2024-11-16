@@ -1,51 +1,29 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.2.2 for both game versions  date 12. 11. 2024
+//version 1.3.0 for both game versions  date 16. 11. 2024    Changes: Merged game versions 1.00 & 1.02; Added In-Chapter splits for Moulinsart & Karaboudjan
 
-state("TINTIN", "v1.00"){
-    bool cutscene: "binkw32.dll", 0x2A91C; // true if the game is playing a video cutscene (bink)
+state("TINTIN"){
+    bool cutscene: "binkw32.dll", 0x2A91C; // direct, true if the game is playing a video cutscene (bink)
     float posX: "TINTIN.exe", 0x5EE5F8; // direct
     float posY: "TINTIN.exe", 0x005FEBAC, 0x1CC, 0xEDC; // pointer
     float posZ: "TINTIN.exe", 0x5EE660; // direct
 }
 
-state("TINTIN", "v1.02"){
-    bool cutscene: "binkw32.dll", 0x2A91C; // same as 1.00
-    float posX: "TINTIN.exe", 0x5EE5F8; // same as 1.00
-    float posY: "TINTIN.exe", 0x0164BE88, 0x7DC, 0xCE0; // since it's a pointer, Y had to be changed
-    float posZ: "TINTIN.exe", 0x5EE660; // same as 1.00
-}
-
-startup{
-    settings.Add("GameVer", true, "Game Version");
-            settings.Add("V100", true, "v1.00", "GameVer");
-            settings.Add("V102", false, "v1.02", "GameVer");
-    
-    settings.Add("S", true, "Splits");
+startup{   
+    settings.Add("S", true, "Batch Splits");
             settings.Add("BOOK1", true, "After 1st Batch of chapters (Flea Market)", "S");
             settings.Add("BOOK2", true, "After 2nd Batch of chapters (Moulinsart)", "S");
             settings.Add("BOOK3", true, "After 3rd Batch of chapters (Karaboudjan)", "S");
             settings.Add("BOOK4", true, "After 4th Batch of chapters (Bagghar)", "S");
             settings.Add("BOOK5", true, "After 5th Batch of chapters (Brittany)", "S");
+    
+    settings.Add("ES", true, "In-Chapter Splits");
+            settings.Add("MS1", true, "Moulinsart: Exiting crypts, entering the building", "ES");
+            
+            settings.Add("KB1", true, "Karaboudjan: After meeting Haddock", "ES");
+            settings.Add("KB2", true, "Karaboudjan: After Haddock destroys the ship", "ES");
 }
 
 init{
-    if (settings["V100"] && !settings["V102"]){ // user must specify the correct version before starting the game, it won't change after. Something to work on
-        version = "v1.00";
-        print("GAME VERSION: 1.00");
-    }
-    else if (!settings["V100"] && settings["V102"]){
-        version = "v1.02";
-        print("GAME VERSION: 1.02");
-    }
-    else if (settings["V100"] && settings["V102"]){
-        version = "v1.00";
-        print("GAME VERSION: BOTH BOXES CHECKED, DEFAULTING TO 1.00");
-    }
-    else if (!settings["V100"] && !settings["V102"]){
-        version = "v1.00";
-        print("GAME VERSION: BOTH BOXES UNCHECKED, DEFAULTING TO 1.00");
-    }
-
     vars.bookFleaMarket = false; // could just be vars.splitControl
     vars.bookMoulinsart = false;
     vars.bookKaraboudjan = false;
@@ -53,6 +31,10 @@ init{
     vars.bookBrittany = false;
     vars.finalSplit = false;
     vars.gameFinished = false;
+
+    vars.splitMS1 = false;
+    vars.splitKB1 = false;
+    vars.splitKB2 = false;
 }
 
 update{
@@ -105,6 +87,31 @@ update{
         vars.gameFinished == false)
     { 
         vars.finalSplit = true;
+    }
+
+    //IN-CHAPTER SPLITS
+    if ((current.posX > 233 && current.posX < 243 && // MS1
+        current.posY > 32 && current.posY < 35 &&
+        current.posZ > 1.8 && current.posZ < 2.2) &&
+        vars.splitMS1 == false)
+    {
+        vars.splitMS1 = true;
+    }
+
+    if ((current.posX > 31 && current.posX < 34 && // KB1
+        current.posY > -7 && current.posY < -4 &&
+        current.posZ > -38 && current.posZ < -33) &&
+        vars.splitKB1 == false)
+    {
+        vars.splitKB1 = true;
+    }
+
+    if ((current.posX > -6 && current.posX < 10 && // KB2
+        current.posY > 0 && current.posY < 10 &&
+        current.posZ > 85 && current.posZ < 95) &&
+        vars.splitKB2 == false)
+    {
+        vars.splitKB2 = true;
     }
 }
 
@@ -161,6 +168,39 @@ split{
             return settings["BOOK5"];
         }
     }
+
+    //  IN-CHAPTER SPLITS
+    //MS1 (Entering the building)
+    if (
+    (current.posX > 10 && current.posX < 12 && // MS1
+     current.posY > -1 && current.posY < 1 &&
+     current.posZ > 5 && current.posZ < 7) &&
+     vars.splitMS1 == true)
+    {
+        vars.splitMS1 = false;
+        return settings["MS1"];
+    }
+
+    if (
+    (current.posX > 2 && current.posX < 3 && // KB1
+     current.posY > 0 && current.posY < 1 &&
+     current.posZ > 3 && current.posZ < 5) &&
+     vars.splitKB1 == true)
+    {
+        vars.splitKB1 = false;
+        return settings["KB1"];
+    }
+
+    if (
+    (current.posX > -59 && current.posX < -55 && // KB2
+     current.posY > -1 && current.posY < 1 &&
+     current.posZ > 7 && current.posZ < 8) &&
+     vars.splitKB2 == true)
+    {
+        vars.splitKB2 = false;
+        return settings["KB2"];
+    }
+    
 }
 
 onReset{
@@ -171,4 +211,7 @@ onReset{
     vars.bookBrittany = false;
     vars.finalSplit = false;
     vars.gameFinished = false;
+    vars.splitMS1 = false;
+    vars.splitKB1 = false;
+    vars.splitKB2 = false;
 }
