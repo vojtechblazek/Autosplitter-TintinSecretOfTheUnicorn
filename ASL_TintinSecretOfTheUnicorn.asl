@@ -1,5 +1,5 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.3.0 for both game versions  date 16. 11. 2024    Changes: Merged game versions 1.00 & 1.02; Added In-Chapter splits for Moulinsart & Karaboudjan
+//version 1.3.2 for both game versions  date 12. 11. 2024    Changes: Added and fixed all other additional splits
 
 state("TINTIN"){
     bool cutscene: "binkw32.dll", 0x2A91C; // direct, true if the game is playing a video cutscene (bink)
@@ -10,20 +10,33 @@ state("TINTIN"){
 
 startup{   
     settings.Add("S", true, "Batch Splits");
-            settings.Add("BOOK1", true, "After 1st Batch of chapters (Flea Market)", "S");
-            settings.Add("BOOK2", true, "After 2nd Batch of chapters (Moulinsart)", "S");
-            settings.Add("BOOK3", true, "After 3rd Batch of chapters (Karaboudjan)", "S");
-            settings.Add("BOOK4", true, "After 4th Batch of chapters (Bagghar)", "S");
-            settings.Add("BOOK5", true, "After 5th Batch of chapters (Brittany)", "S");
+        settings.Add("BOOK1", true, "After 1st Batch of chapters (Flea Market)", "S");
+        settings.Add("BOOK2", true, "After 2nd Batch of chapters (Moulinsart)", "S");
+        settings.Add("BOOK3", true, "After 3rd Batch of chapters (Karaboudjan)", "S");
+        settings.Add("BOOK4", true, "After 4th Batch of chapters (Bagghar)", "S");
+        settings.Add("BOOK5", true, "After 5th Batch of chapters (Brittany)", "S");
     
-    settings.Add("ES", true, "Additional Splits");
-            settings.Add("MS1", false, "Moulinsart: The Salons", "ES");
-            settings.Add("KB1", false, "Karaboudjan: Up to the Wheelhouse (after cutscene)", "ES");
-            settings.Add("KB2", false, "Karaboudjan: The Shipwreck (after cutscene)", "ES");
+    settings.Add("ES", false, "In-Chapter Splits");
+        settings.Add("MS1", true, "Moulinsart: The Salons", "ES");
+            
+        settings.Add("KB1", true, "Karaboudjan: Up to the Wheelhouse (after cutscene)", "ES");
+        settings.Add("KB2", true, "Karaboudjan: The Shipwreck (after cutscene)", "ES");
+
+        settings.Add("BH1", true, "Bagghar: Find an Entrance to the Palace", "ES");
+        settings.Add("BH2", true, "Bagghar: Omar Ben Salaad's Palace (underground)", "ES");
+        settings.Add("BH3", true, "Bagghar: Palace Roofs", "ES");
+        settings.Add("BH4", true, "Bagghar: After opening the Unicorn", "ES");
+        settings.Add("BH5", true, "Bagghar: Escape from the Palace", "ES");
+
+        settings.Add("BT1", true, "Brittany: After reuniting with Haddock", "ES");
+        settings.Add("BT2", true, "Brittany: Climbing the tower (after cutscene)", "ES");
+        settings.Add("BT3", true, "Brittany: Looking for Haddock (after parrot sequence)", "ES");
+        settings.Add("BT4", true, "[DO NOT USE, MISBEHAVING] Brittany: After Allan bossfight", "ES");
+        settings.Add("BT5", true, "Brittany: Cutscene after discovering the coordinates", "ES");
 }
 
 init{
-    vars.bookFleaMarket = false; // could just be vars.splitControl
+    vars.bookFleaMarket = false;
     vars.bookMoulinsart = false;
     vars.bookKaraboudjan = false;
     vars.bookBagghar = false;
@@ -32,8 +45,21 @@ init{
     vars.gameFinished = false;
 
     vars.splitMS1 = false;
+    
     vars.splitKB1 = false;
     vars.splitKB2 = false;
+    
+    vars.splitBH1 = false;
+    vars.splitBH2 = false;
+    vars.splitBH3 = false;
+    vars.splitBH4 = false;
+    vars.splitBH5 = false;
+
+    vars.splitBT1 = false;
+    vars.splitBT2 = false;
+    vars.splitBT3 = false;
+    vars.splitBT4 = false;
+    vars.splitBT5 = false;
 }
 
 update{
@@ -88,7 +114,7 @@ update{
         vars.finalSplit = true;
     }
 
-    //IN-CHAPTER SPLITS
+    //ADDITIONAL SPLITS
     if ((current.posX > 233 && current.posX < 243 && // MS1
         current.posY > 32 && current.posY < 35 &&
         current.posZ > 1.8 && current.posZ < 2.2) &&
@@ -112,6 +138,86 @@ update{
     {
         vars.splitKB2 = true;
     }
+
+    if ((current.posX > 50 && current.posX < 85 && // BH1
+        current.posY > 15 && current.posY < 25 &&
+        current.posZ > -410 && current.posZ < -370) &&
+        vars.splitBH1 == false)
+    {
+        vars.splitBH1 = true;
+    }
+
+    if ((current.posX > 100 && current.posX < 105 && // BH2
+        current.posY > -65 && current.posY < -50 &&
+        current.posZ > 6 && current.posZ < 8) &&
+        vars.splitBH2 == false)
+    {
+        vars.splitBH2 = true;
+    }
+
+    if ((current.posX > 125 && current.posX < 135 && // BH3
+        current.posY > 75 && current.posY < 85 &&
+        current.posZ > 5 && current.posZ < 7) &&
+        vars.splitBH3 == false)
+    {
+        vars.splitBH3 = true;
+    }
+
+    if ((current.posX > 275 && current.posX < 285 && // BH4 (primes all the way back at the start of the Allan bossfight, since the unicorn coords were very common)
+        current.posY > -35 && current.posY < -25 &&
+        current.posZ > 0 && current.posZ < 3) &&
+        vars.splitBH4 == false)
+    {
+        vars.splitBH4 = true;
+    }
+
+    if ((current.posX > -40 && current.posX < -30 && // BH5
+        current.posY > -1 && current.posY < 1 &&
+        current.posZ > 155 && current.posZ < 170) &&
+        vars.splitBH5 == false)
+    {
+        vars.splitBH5 = true;
+    }
+
+    if ((current.posX > 360 && current.posX < 370 && // BT1
+        current.posY > 34 && current.posY < 38 &&
+        current.posZ > 9 && current.posZ < 13) &&
+        vars.splitBT1 == false)
+    {
+        vars.splitBT1 = true;
+    }
+
+    if ((current.posX > 278 && current.posX < 288 && // BT2
+        current.posY > -50 && current.posY < -39 &&
+        current.posZ > 17 && current.posZ < 23) &&
+        vars.splitBT2 == false && current.cutscene == false)
+    {
+        vars.splitBT2 = true;
+    }
+
+    if ((current.posX > 520 && current.posX < 530 && // BT3
+        current.posY > 55 && current.posY < 65 &&
+        current.posZ > 8 && current.posZ < 10) &&
+        vars.splitBT3 == false)
+    {
+        vars.splitBT3 = true;
+    }
+
+    if ((current.posX > 279 && current.posX < 283 && // BT4
+        current.posY > -43 && current.posY < -39 &&
+        current.posZ > 11 && current.posZ < 14) &&
+        vars.splitBT4 == false)
+    {
+        vars.splitBT4 = true;
+    }
+
+    if ((current.posX > 0 && current.posX < 3 && // BT5
+        current.posY > 2 && current.posY < 4 &&
+        current.posZ > 50 && current.posZ < 54) &&
+        vars.splitBT5 == false)
+    {
+        vars.splitBT5 = true;
+    }
 }
 
 start{
@@ -124,6 +230,7 @@ split{
     {
         vars.finalSplit = false;
         vars.gameFinished = true;
+        print("ENDING SPLIT");
         return true;
     }
     
@@ -140,36 +247,40 @@ split{
         if (vars.bookFleaMarket == true)
         {
             vars.bookFleaMarket = false;
+            print("FLEA MARKET BOOK SPLIT");
             return settings["BOOK1"];
         }
         // Moulinsart
         else if (vars.bookMoulinsart == true)
         {
             vars.bookMoulinsart = false;
+            print("MOULINSART BOOK SPLIT");
             return settings["BOOK2"];
         }
         // Karaboudjan
         else if (vars.bookKaraboudjan == true)
         {
             vars.bookKaraboudjan = false;
+            print("KARABOUDJAN BOOK SPLIT");
             return settings["BOOK3"];
         }
         //Bagghar
         else if (vars.bookBagghar == true)
         {
             vars.bookBagghar = false;
+            print("BAGGHAR BOOK SPLIT");
             return settings["BOOK4"];
         }
         //Brittany
         else if (vars.bookBrittany == true)
         {
             vars.bookBrittany = false;
+            print("BRITTANY BOOK SPLIT");
             return settings["BOOK5"];
         }
     }
 
     //  IN-CHAPTER SPLITS
-    //MS1 (Entering the building)
     if (
     (current.posX > 10 && current.posX < 12 && // MS1
      current.posY > -1 && current.posY < 1 &&
@@ -177,6 +288,7 @@ split{
      vars.splitMS1 == true)
     {
         vars.splitMS1 = false;
+        print("MS1 SPLIT");
         return settings["MS1"];
     }
 
@@ -187,6 +299,7 @@ split{
      vars.splitKB1 == true)
     {
         vars.splitKB1 = false;
+        print("KB1 SPLIT");
         return settings["KB1"];
     }
 
@@ -197,9 +310,119 @@ split{
      vars.splitKB2 == true)
     {
         vars.splitKB2 = false;
+        print("KB2 SPLIT");
         return settings["KB2"];
     }
-    
+
+    if (
+    (current.posX > -755 && current.posX < -735 && // BH1
+     current.posY > -10 && current.posY < -7 &&
+     current.posZ > 945 && current.posZ < 965) &&
+     vars.splitBH1 == true)
+    {
+        vars.splitBH1 = false;
+        print("BH1 SPLIT");
+        return settings["BH1"];
+    }
+
+    if (
+    (current.posX > -195 && current.posX < -185 && // BH2
+     current.posY > 35 && current.posY < 45 &&
+     current.posZ > 9 && current.posZ < 11) &&
+     vars.splitBH2 == true)
+    {
+        vars.splitBH2 = false;
+        print("BH2 SPLIT");
+        return settings["BH2"];
+    }
+
+    if (
+    (current.posX > -70 && current.posX < -60 && // BH3
+     current.posY > -4 && current.posY < 0 &&
+     current.posZ > -1 && current.posZ < 1) &&
+     vars.splitBH3 == true)
+    {
+        vars.splitBH3 = false;
+        print("BH3 SPLIT");
+        return settings["BH3"];
+    }
+
+    if (
+    (current.posX > -135 && current.posX < -125 && // BH4 
+     current.posY > 6 && current.posY < 8 &&
+     current.posZ > 1 && current.posZ < 3) &&
+     vars.splitBH4 == true)
+    {
+        vars.splitBH4 = false;
+        print("BH4 SPLIT");
+        return settings["BH4"];
+    }
+
+    if (
+    (current.posX > -375 && current.posX < -365 && // BH5
+     current.posY > -25 && current.posY < -15 &&
+     current.posZ > -110 && current.posZ < -95) &&
+     vars.splitBH5 == true)
+    {
+        vars.splitBH5 = false;
+        print("BH5 SPLIT");
+        return settings["BH5"];
+    }
+
+    if (
+    (current.posX > 6 && current.posX < 8 && // BT1
+     current.posY > 50 && current.posY < 56 &&
+     current.posZ > 7 && current.posZ < 9) &&
+     vars.splitBT1 == true)
+    {
+        vars.splitBT1 = false;
+        print("BT1 SPLIT");
+        return settings["BT1"];
+    }
+
+    if (
+    (current.posX > 278 && current.posX < 288 && // BT2, works differently (starts at a cutscene)
+     current.posY > -50 && current.posY < -39 &&
+     current.posZ > 17 && current.posZ < 23) &&
+     vars.splitBT2 == true && current.cutscene == true)
+    {
+        vars.splitBT2 = false;
+        print("BT2 SPLIT");
+        return settings["BT2"];
+    }
+
+    if (
+    (current.posX > -4 && current.posX < 0 && // BT3
+     current.posY > 1 && current.posY < 2 &&
+     current.posZ > 21 && current.posZ < 25) &&
+     vars.splitBT3 == true)
+    {
+        vars.splitBT3 = false;
+        print("BT3 SPLIT");
+        return settings["BT3"];
+    }
+
+    if (
+    (current.posX > 71 && current.posX < 73 && // BT4
+     current.posY > 7.5 && current.posY < 8.5 &&
+     current.posZ > 9 && current.posZ < 11) &&
+     vars.splitBT4 == true)
+    {
+        vars.splitBT4 = false;
+        print("BT4 SPLIT");
+        return settings["BT4"];
+    }
+
+    if (
+    (current.posX > 1 && current.posX < 1.5 && // BT5
+     current.posY > 0 && current.posY < 0.5 &&
+     current.posZ > 0 && current.posZ < 1) &&
+     vars.splitBT5 == true && current.cutscene == true)
+    {
+        vars.splitBT5 = false;
+        print("BT5 SPLIT");
+        return settings["BT5"];
+    } 
 }
 
 onReset{
@@ -213,4 +436,37 @@ onReset{
     vars.splitMS1 = false;
     vars.splitKB1 = false;
     vars.splitKB2 = false;
+    vars.splitBH1 = false;
+    vars.splitBH2 = false;
+    vars.splitBH3 = false;
+    vars.splitBH4 = false;
+    vars.splitBH5 = false;
+    vars.splitBT1 = false;
+    vars.splitBT2 = false;
+    vars.splitBT3 = false;
+    vars.splitBT4 = false;
+    vars.splitBT5 = false;
+}
+
+exit{
+    vars.bookFleaMarket = false;
+    vars.bookMoulinsart = false;
+    vars.bookKaraboudjan = false;
+    vars.bookBagghar = false;
+    vars.bookBrittany = false;
+    vars.finalSplit = false;
+    vars.gameFinished = false;
+    vars.splitMS1 = false;
+    vars.splitKB1 = false;
+    vars.splitKB2 = false;
+    vars.splitBH1 = false;
+    vars.splitBH2 = false;
+    vars.splitBH3 = false;
+    vars.splitBH4 = false;
+    vars.splitBH5 = false;
+    vars.splitBT1 = false;
+    vars.splitBT2 = false;
+    vars.splitBT3 = false;
+    vars.splitBT4 = false;
+    vars.splitBT5 = false;
 }
