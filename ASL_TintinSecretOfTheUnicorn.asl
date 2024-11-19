@@ -1,5 +1,5 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.3.2 for both game versions  date 12. 11. 2024    Changes: Added and fixed all other additional splits
+//version 1.3.3 for both game versions  date 20. 11. 2024    Changes: Fixed non-splitting BH5 and some split activating in Brittany
 
 state("TINTIN"){
     bool cutscene: "binkw32.dll", 0x2A91C; // direct, true if the game is playing a video cutscene (bink)
@@ -17,25 +17,24 @@ startup{
         settings.Add("BOOK5", true, "After 5th Batch of chapters (Brittany)", "S");
     
     settings.Add("ES", false, "In-Chapter Splits");
-        settings.Add("MS1", true, "Moulinsart: The Salons", "ES");
-            
+        settings.Add("MS1", true, "Moulinsart: The Salons", "ES");   
         settings.Add("KB1", true, "Karaboudjan: Up to the Wheelhouse (after cutscene)", "ES");
         settings.Add("KB2", true, "Karaboudjan: The Shipwreck (after cutscene)", "ES");
-
         settings.Add("BH1", true, "Bagghar: Find an Entrance to the Palace", "ES");
         settings.Add("BH2", true, "Bagghar: Omar Ben Salaad's Palace (underground)", "ES");
         settings.Add("BH3", true, "Bagghar: Palace Roofs", "ES");
         settings.Add("BH4", true, "Bagghar: After opening the Unicorn", "ES");
         settings.Add("BH5", true, "Bagghar: Escape from the Palace", "ES");
-
         settings.Add("BT1", true, "Brittany: After reuniting with Haddock", "ES");
         settings.Add("BT2", true, "Brittany: Climbing the tower (after cutscene)", "ES");
         settings.Add("BT3", true, "Brittany: Looking for Haddock (after parrot sequence)", "ES");
-        settings.Add("BT4", true, "[DO NOT USE, MISBEHAVING] Brittany: After Allan bossfight", "ES");
+        settings.Add("BT4", true, "Brittany: After Allan bossfight", "ES");
         settings.Add("BT5", true, "Brittany: Cutscene after discovering the coordinates", "ES");
 }
 
 init{
+    vars.splitTriggered = false;
+    
     vars.bookFleaMarket = false;
     vars.bookMoulinsart = false;
     vars.bookKaraboudjan = false;
@@ -43,18 +42,14 @@ init{
     vars.bookBrittany = false;
     vars.finalSplit = false;
     vars.gameFinished = false;
-
     vars.splitMS1 = false;
-    
     vars.splitKB1 = false;
     vars.splitKB2 = false;
-    
     vars.splitBH1 = false;
     vars.splitBH2 = false;
     vars.splitBH3 = false;
     vars.splitBH4 = false;
     vars.splitBH5 = false;
-
     vars.splitBT1 = false;
     vars.splitBT2 = false;
     vars.splitBT3 = false;
@@ -63,6 +58,32 @@ init{
 }
 
 update{
+    if (vars.splitTriggered == true)
+    {
+        vars.splitTriggered = false;
+        
+        vars.bookFleaMarket = false;
+        vars.bookMoulinsart = false;
+        vars.bookKaraboudjan = false;
+        vars.bookBagghar = false;
+        vars.bookBrittany = false;
+        vars.finalSplit = false;
+        vars.gameFinished = false;
+        vars.splitMS1 = false;
+        vars.splitKB1 = false;
+        vars.splitKB2 = false;
+        vars.splitBH1 = false;
+        vars.splitBH2 = false;
+        vars.splitBH3 = false;
+        vars.splitBH4 = false;
+        vars.splitBH5 = false;
+        vars.splitBT1 = false;
+        vars.splitBT2 = false;
+        vars.splitBT3 = false;
+        vars.splitBT4 = false;
+        vars.splitBT5 = false;
+    }
+    
     //BOOK SPLITS
     //Flea Market
     if (current.posX > 7 && current.posX < 7.4 &&   
@@ -230,13 +251,13 @@ split{
     {
         vars.finalSplit = false;
         vars.gameFinished = true;
-        print("ENDING SPLIT");
+        vars.splitTriggered = true;
         return true;
     }
     
     //BOOK SPLITS
     if (
-    (old.posX > 22 && old.posX < 22.5 && // Check for book coordinates
+    (old.posX > 22 && old.posX < 22.5 && // Checks for book coordinates
      old.posY > 13 && old.posY < 13.1 &&
      old.posZ > 14.8 && old.posZ < 15) &&
     (current.posX < 22 || current.posX > 22.5 ||
@@ -247,35 +268,35 @@ split{
         if (vars.bookFleaMarket == true)
         {
             vars.bookFleaMarket = false;
-            print("FLEA MARKET BOOK SPLIT");
+            vars.splitTriggered = true;
             return settings["BOOK1"];
         }
         // Moulinsart
         else if (vars.bookMoulinsart == true)
         {
             vars.bookMoulinsart = false;
-            print("MOULINSART BOOK SPLIT");
+            vars.splitTriggered = true;
             return settings["BOOK2"];
         }
         // Karaboudjan
         else if (vars.bookKaraboudjan == true)
         {
             vars.bookKaraboudjan = false;
-            print("KARABOUDJAN BOOK SPLIT");
+            vars.splitTriggered = true;
             return settings["BOOK3"];
         }
         //Bagghar
         else if (vars.bookBagghar == true)
         {
             vars.bookBagghar = false;
-            print("BAGGHAR BOOK SPLIT");
+            vars.splitTriggered = true;
             return settings["BOOK4"];
         }
         //Brittany
         else if (vars.bookBrittany == true)
         {
             vars.bookBrittany = false;
-            print("BRITTANY BOOK SPLIT");
+            vars.splitTriggered = true;
             return settings["BOOK5"];
         }
     }
@@ -288,7 +309,7 @@ split{
      vars.splitMS1 == true)
     {
         vars.splitMS1 = false;
-        print("MS1 SPLIT");
+        vars.splitTriggered = true;
         return settings["MS1"];
     }
 
@@ -299,7 +320,7 @@ split{
      vars.splitKB1 == true)
     {
         vars.splitKB1 = false;
-        print("KB1 SPLIT");
+        vars.splitTriggered = true;
         return settings["KB1"];
     }
 
@@ -310,7 +331,7 @@ split{
      vars.splitKB2 == true)
     {
         vars.splitKB2 = false;
-        print("KB2 SPLIT");
+        vars.splitTriggered = true;
         return settings["KB2"];
     }
 
@@ -321,7 +342,7 @@ split{
      vars.splitBH1 == true)
     {
         vars.splitBH1 = false;
-        print("BH1 SPLIT");
+        vars.splitTriggered = true;
         return settings["BH1"];
     }
 
@@ -332,7 +353,7 @@ split{
      vars.splitBH2 == true)
     {
         vars.splitBH2 = false;
-        print("BH2 SPLIT");
+        vars.splitTriggered = true;
         return settings["BH2"];
     }
 
@@ -343,7 +364,7 @@ split{
      vars.splitBH3 == true)
     {
         vars.splitBH3 = false;
-        print("BH3 SPLIT");
+        vars.splitTriggered = true;
         return settings["BH3"];
     }
 
@@ -354,7 +375,7 @@ split{
      vars.splitBH4 == true)
     {
         vars.splitBH4 = false;
-        print("BH4 SPLIT");
+        vars.splitTriggered = true;
         return settings["BH4"];
     }
 
@@ -365,7 +386,7 @@ split{
      vars.splitBH5 == true)
     {
         vars.splitBH5 = false;
-        print("BH5 SPLIT");
+        vars.splitTriggered = true;
         return settings["BH5"];
     }
 
@@ -376,7 +397,7 @@ split{
      vars.splitBT1 == true)
     {
         vars.splitBT1 = false;
-        print("BT1 SPLIT");
+        vars.splitTriggered = true;
         return settings["BT1"];
     }
 
@@ -387,7 +408,7 @@ split{
      vars.splitBT2 == true && current.cutscene == true)
     {
         vars.splitBT2 = false;
-        print("BT2 SPLIT");
+        vars.splitTriggered = true;
         return settings["BT2"];
     }
 
@@ -398,7 +419,7 @@ split{
      vars.splitBT3 == true)
     {
         vars.splitBT3 = false;
-        print("BT3 SPLIT");
+        vars.splitTriggered = true;
         return settings["BT3"];
     }
 
@@ -409,7 +430,7 @@ split{
      vars.splitBT4 == true)
     {
         vars.splitBT4 = false;
-        print("BT4 SPLIT");
+        vars.splitTriggered = true;
         return settings["BT4"];
     }
 
@@ -420,53 +441,17 @@ split{
      vars.splitBT5 == true && current.cutscene == true)
     {
         vars.splitBT5 = false;
-        print("BT5 SPLIT");
+        vars.splitTriggered = true;
         return settings["BT5"];
     } 
 }
 
 onReset{
-    vars.bookFleaMarket = false;
-    vars.bookMoulinsart = false;
-    vars.bookKaraboudjan = false;
-    vars.bookBagghar = false;
-    vars.bookBrittany = false;
-    vars.finalSplit = false;
+    vars.splitTriggered = true;
     vars.gameFinished = false;
-    vars.splitMS1 = false;
-    vars.splitKB1 = false;
-    vars.splitKB2 = false;
-    vars.splitBH1 = false;
-    vars.splitBH2 = false;
-    vars.splitBH3 = false;
-    vars.splitBH4 = false;
-    vars.splitBH5 = false;
-    vars.splitBT1 = false;
-    vars.splitBT2 = false;
-    vars.splitBT3 = false;
-    vars.splitBT4 = false;
-    vars.splitBT5 = false;
 }
 
 exit{
-    vars.bookFleaMarket = false;
-    vars.bookMoulinsart = false;
-    vars.bookKaraboudjan = false;
-    vars.bookBagghar = false;
-    vars.bookBrittany = false;
-    vars.finalSplit = false;
+    vars.splitTriggered = true;
     vars.gameFinished = false;
-    vars.splitMS1 = false;
-    vars.splitKB1 = false;
-    vars.splitKB2 = false;
-    vars.splitBH1 = false;
-    vars.splitBH2 = false;
-    vars.splitBH3 = false;
-    vars.splitBH4 = false;
-    vars.splitBH5 = false;
-    vars.splitBT1 = false;
-    vars.splitBT2 = false;
-    vars.splitBT3 = false;
-    vars.splitBT4 = false;
-    vars.splitBT5 = false;
 }
