@@ -30,6 +30,13 @@ startup{
         settings.Add("BT3", true, "Brittany: Looking for Haddock (after parrot sequence)", "ES");
         settings.Add("BT4", true, "Brittany: After Allan bossfight", "ES");
         settings.Add("BT5", true, "Brittany: Cutscene after discovering the coordinates", "ES");
+    
+    settings.Add("FINS", false, "Individual chapter final splits (! Don't use together with batch splits !)");
+        settings.Add("FMFin", true, "Flea Market", "FINS");
+        settings.Add("MSFin", true, "Moulinsart", "FINS");
+        settings.Add("KBFin", true, "Karaboudjan", "FINS");
+        settings.Add("BHFin", true, "Bagghar", "FINS");
+        settings.Add("BTFin", true, "Brittany", "FINS");
 }
 
 init{
@@ -300,6 +307,48 @@ split{
             return settings["BOOK5"];
         }
     }
+
+    // INDIVIDUAL CHAPTERS FINAL SPLITS
+    if(old.posX > 22 && old.posX < 22.5 && // Checks for book coordinates
+      old.posY > 13 && old.posY < 13.1 &&
+      old.posZ > 14.8 && old.posZ < 15)
+      {
+        // Flea Market
+        if (vars.bookFleaMarket == true)
+        {
+            vars.bookFleaMarket = false;
+            vars.splitTriggered = true;
+            return settings["FMFin"];
+        }
+        // Moulinsart
+        else if (vars.bookMoulinsart == true)
+        {
+            vars.bookMoulinsart = false;
+            vars.splitTriggered = true;
+            return settings["MSFin"];
+        }
+        // Karaboudjan
+        else if (vars.bookKaraboudjan == true)
+        {
+            vars.bookKaraboudjan = false;
+            vars.splitTriggered = true;
+            return settings["KBFin"];
+        }
+        //Bagghar
+        else if (vars.bookBagghar == true)
+        {
+            vars.bookBagghar = false;
+            vars.splitTriggered = true;
+            return settings["BHFin"];
+        }
+        //Brittany
+        else if (vars.bookBrittany == true)
+        {
+            vars.bookBrittany = false;
+            vars.splitTriggered = true;
+            return settings["BTFin"];
+        }
+      }
 
     //  IN-CHAPTER SPLITS
     if (
