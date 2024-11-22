@@ -1,5 +1,5 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.3.3 for both game versions  date 20. 11. 2024    Changes: Fixed non-splitting BH5 and some split activating in Brittany
+//version 1.3.3 for both game versions  date 20. 11. 2024    Changes: Added indiv chapter splits
 
 state("TINTIN"){
     bool cutscene: "binkw32.dll", 0x2A91C; // direct, true if the game is playing a video cutscene (bink)
