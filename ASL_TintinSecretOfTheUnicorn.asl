@@ -1,8 +1,9 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.3.3 for both game versions  date 20. 11. 2024    Changes: Added indiv chapter splits
+//version 1.4.0 for both game versions  date 20. 11. 2024    Changes: Added LRT
 
 state("TINTIN"){
     bool cutscene: "binkw32.dll", 0x2A91C; // direct, true if the game is playing a video cutscene (bink)
+    bool loadRemove: "TINTIN.exe", 0x000223DC, 0x7D4; // pointer
     float posX: "TINTIN.exe", 0x5EE5F8; // direct
     float posY: "TINTIN.exe", 0x005FEBAC, 0x1CC, 0xEDC; // pointer
     float posZ: "TINTIN.exe", 0x5EE660; // direct
@@ -493,6 +494,10 @@ split{
         vars.splitTriggered = true;
         return settings["BT5"];
     } 
+}
+
+isLoading{
+    return current.loadRemove && !current.cutscene;
 }
 
 onReset{
