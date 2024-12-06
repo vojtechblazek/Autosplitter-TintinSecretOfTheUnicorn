@@ -1,5 +1,5 @@
 //The Adventures of Tintin: The Secret of the Unicorn Auto Splitter by vojtechblazek
-//version 1.4.0 for both game versions  date 20. 11. 2024    Changes: Added LRT
+//version 1.4.1 for both game versions  date 20. 11. 2024    Changes: Fixed Splitting issues
 
 state("TINTIN"){
     bool cutscene: "binkw32.dll", 0x2A91C; // direct, true if the game is playing a video cutscene (bink)
@@ -10,7 +10,7 @@ state("TINTIN"){
 }
 
 startup{   
-    settings.Add("S", true, "Batch Splits");
+    settings.Add("S", true, "Batch Split (split after exiting the book screen)");
         settings.Add("BOOK1", true, "After 1st Batch of chapters (Flea Market)", "S");
         settings.Add("BOOK2", true, "After 2nd Batch of chapters (Moulinsart)", "S");
         settings.Add("BOOK3", true, "After 3rd Batch of chapters (Karaboudjan)", "S");
@@ -32,7 +32,7 @@ startup{
         settings.Add("BT4", true, "Brittany: After Allan bossfight", "ES");
         settings.Add("BT5", true, "Brittany: Cutscene after discovering the coordinates", "ES");
     
-    settings.Add("FINS", false, "Individual chapter final splits (! Don't use together with batch splits !)");
+    settings.Add("FINS", false, "Individual chapter final splits (split when reaching the book screen)");
         settings.Add("FMFin", true, "Flea Market", "FINS");
         settings.Add("MSFin", true, "Moulinsart", "FINS");
         settings.Add("KBFin", true, "Karaboudjan", "FINS");
@@ -41,7 +41,7 @@ startup{
 }
 
 init{
-    vars.splitTriggered = false;
+    vars.splitTriggered = false; // if this is set true, all flags reset and it sets itself to false again
     
     vars.bookFleaMarket = false;
     vars.bookMoulinsart = false;
@@ -63,6 +63,12 @@ init{
     vars.splitBT3 = false;
     vars.splitBT4 = false;
     vars.splitBT5 = false;
+
+    vars.E1splitted = false; // these just check for logic conflicts with two book splits
+    vars.E2splitted = false;
+    vars.E3splitted = false;
+    vars.E4splitted = false;
+    vars.E5splitted = false;
 }
 
 update{
@@ -90,6 +96,12 @@ update{
         vars.splitBT3 = false;
         vars.splitBT4 = false;
         vars.splitBT5 = false;
+        
+        vars.E1splitted = false; 
+        vars.E2splitted = false;
+        vars.E3splitted = false;
+        vars.E4splitted = false;
+        vars.E5splitted = false;
     }
     
     //BOOK SPLITS
@@ -273,35 +285,35 @@ split{
      current.posZ < 14.8 || current.posZ > 15))
     {
         // Flea Market
-        if (vars.bookFleaMarket == true)
+        if (vars.bookFleaMarket == true && settings["BOOK1"])
         {
             vars.bookFleaMarket = false;
             vars.splitTriggered = true;
             return settings["BOOK1"];
         }
         // Moulinsart
-        else if (vars.bookMoulinsart == true)
+        else if (vars.bookMoulinsart == true && settings["BOOK2"])
         {
             vars.bookMoulinsart = false;
             vars.splitTriggered = true;
             return settings["BOOK2"];
         }
         // Karaboudjan
-        else if (vars.bookKaraboudjan == true)
+        else if (vars.bookKaraboudjan == true && settings["BOOK3"])
         {
             vars.bookKaraboudjan = false;
             vars.splitTriggered = true;
             return settings["BOOK3"];
         }
         //Bagghar
-        else if (vars.bookBagghar == true)
+        else if (vars.bookBagghar == true && settings["BOOK4"])
         {
             vars.bookBagghar = false;
             vars.splitTriggered = true;
             return settings["BOOK4"];
         }
         //Brittany
-        else if (vars.bookBrittany == true)
+        else if (vars.bookBrittany == true && settings["BOOK5"])
         {
             vars.bookBrittany = false;
             vars.splitTriggered = true;
@@ -312,41 +324,51 @@ split{
     // INDIVIDUAL CHAPTERS FINAL SPLITS
     if(old.posX > 22 && old.posX < 22.5 && // Checks for book coordinates
       old.posY > 13 && old.posY < 13.1 &&
-      old.posZ > 14.8 && old.posZ < 15)
+      old.posZ > 14.8 && old.posZ < 15 )
       {
         // Flea Market
-        if (vars.bookFleaMarket == true)
+        if (vars.bookFleaMarket == true && settings["FMFin"] && !vars.E1splitted)
         {
-            vars.bookFleaMarket = false;
-            vars.splitTriggered = true;
+            if (!settings["BOOK1"]){
+                vars.bookFleaMarket = false;
+                vars.splitTriggered = true;}
+            vars.E1splitted = true;
             return settings["FMFin"];
         }
         // Moulinsart
-        else if (vars.bookMoulinsart == true)
+        else if (vars.bookMoulinsart == true && settings["MSFin"] && !vars.E2splitted)
         {
-            vars.bookMoulinsart = false;
-            vars.splitTriggered = true;
+            if (!settings["BOOK2"]){
+                vars.bookMoulinsart = false;
+                vars.splitTriggered = true;}
+            vars.E2splitted = true;
             return settings["MSFin"];
         }
         // Karaboudjan
-        else if (vars.bookKaraboudjan == true)
+        else if (vars.bookKaraboudjan == true && settings["KBFin"] && !vars.E3splitted)
         {
-            vars.bookKaraboudjan = false;
-            vars.splitTriggered = true;
+            if (!settings["BOOK3"]){
+                vars.bookKaraboudjan = false;
+                vars.splitTriggered = true;}
+            vars.E3splitted = true;
             return settings["KBFin"];
         }
         //Bagghar
-        else if (vars.bookBagghar == true)
+        else if (vars.bookBagghar == true && settings["BHFin"] && !vars.E4splitted)
         {
-            vars.bookBagghar = false;
-            vars.splitTriggered = true;
+            if (!settings["BOOK4"]){
+                vars.bookBagghar = false;
+                vars.splitTriggered = true;}
+            vars.E4splitted = true;
             return settings["BHFin"];
         }
         //Brittany
-        else if (vars.bookBrittany == true)
+        else if (vars.bookBrittany == true && settings["BTFin"] && !vars.E5splitted)
         {
-            vars.bookBrittany = false;
-            vars.splitTriggered = true;
+            if (!settings["BOOK5"]){
+                vars.bookBrittany = false;
+                vars.splitTriggered = true;}
+            vars.E5splitted = true;
             return settings["BTFin"];
         }
       }
